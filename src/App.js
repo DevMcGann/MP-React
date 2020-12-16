@@ -27,6 +27,16 @@ mutation crearPref ($input : [CreatePreferenceInput!]!  ) {
     }
   )
 }
+
+const GET_PREFERENCE =  gql`
+  mutation createMercadoPagoPreference {
+    createMercadoPagoPreference(
+      input: {
+        items: 
+      }
+    )
+}
+`;
 */ 
 
 function App(props) {
@@ -42,24 +52,23 @@ const [myPref, setMyPref] = React.useState(null)
 
 
   const GET_PREFERENCE =  gql`
-  mutation generar_preferencia {
+  mutation createMercadoPagoPreference ($input : [CreatePreferenceInput!]!  ) {
     createMercadoPagoPreference(
       input: {
-        items: ${itemsArray}
+        items: $input
       }
     )
-}
+  }
 `;
-const {data} = useMutation(GET_PREFERENCE)
+const [createMercadoPagoPreference] = useMutation(GET_PREFERENCE)
 
 
 React.useEffect(() => {
-  set_preference(props)
+  set_preference(itemsArray)
   setMercadoPagoPreferences();
 }, []);
 
   const setMercadoPagoPreferences = async () => {
-    
     const script = document.createElement('script');
     script.src = 'https://www.mercadopago.com.ar/integrations/v1/web-payment-checkout.js';
     script.async = true;
@@ -68,9 +77,24 @@ React.useEffect(() => {
   };
 
 
+
 const set_preference =  async (items) => {
-  data(items)
-  //setMyPref(data)
+  try {
+    const {data} = await createMercadoPagoPreference({
+      variables: {
+        input: items
+      }
+    })
+    //console.log(JSON.stringify(data.createMercadoPagoPreference))
+    if (data) {
+      setMyPref(JSON.stringify(data.createMercadoPagoPreference))
+    }
+
+    console.log(myPref)
+  
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 
